@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MailRequest {
-    private List<String> recipients;
+    private String[] recipients;
     private String body;
     private String type;
     private String password_reset_url;

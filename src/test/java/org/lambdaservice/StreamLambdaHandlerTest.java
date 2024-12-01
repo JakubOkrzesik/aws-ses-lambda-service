@@ -46,16 +46,14 @@ public class StreamLambdaHandlerTest {
 
     @Test
     public void sendEmail_TwoValidRequests_TwoSuccess() {
-        List<MailRequest> requests = new ArrayList<>();
-        List<String> recipients = new ArrayList<>();
-        recipients.add("your@email.com");
-        requests.add(new MailRequest(recipients, "This is a password reset", "PASSWORD_RESET", "password"));
-        requests.add(new MailRequest(recipients, "This is a notification", "NOTIFICATION", ""));
+        File json = new File("src/test/java/org/lambdaservice/testFiles/test3.json");
+
+        JsonNode parsedJson = readJsonFromFile(json);
 
         InputStream requestStream = new AwsProxyRequestBuilder("/email/send", HttpMethod.POST)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
-                .body(requests)
+                .body(parsedJson)
                 .buildStream();
         ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
 
