@@ -13,5 +13,5 @@ public class MailRequest {
     private String[] recipients;
     private String body;
     private String type;
-    private String password_reset_url;
+    private String url;
 }

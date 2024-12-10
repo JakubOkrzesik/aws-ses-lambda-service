@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class EmailController {
     public ResponseEntity<Object> send(@RequestBody List<MailRequest> requestList) {
         try {
             List<MailResponse> responses = requestList.stream()
-                    .peek(this::validateRequestFields) // Validate the type
+                    .peek(emailService::validateRequestFields) // Validate the type
                     .map(emailService::send) // Send the email if validation passes
                     .toList(); // Compile results to a list
 
@@ -37,34 +38,7 @@ public class EmailController {
         }
     }
 
-    // Temporary solution real deal validation should be implemented in the future
-    private void validateRequestFields(MailRequest mailRequest) {
-        if (mailRequest.getRecipients()==null || mailRequest.getRecipients().length==0 || mailRequest.getType()==null) {
-            throw new IllegalArgumentException("Invalid request params - check your request");
-        }
 
-        try {
-            // Validate the request type
-            MailRequestType type = MailRequestType.valueOf(mailRequest.getType());
-
-            switch (type) {
-                case NOTIFICATION -> {
-                    if (mailRequest.getBody() == null || mailRequest.getBody().isEmpty()) {
-                        throw new IllegalArgumentException("The request body must not be null or empty for type 'NOTIFICATION'");
-                    }
-                }
-                case PASSWORD_RESET -> {
-                    if (mailRequest.getPassword_reset_url() == null || mailRequest.getPassword_reset_url().isEmpty()) {
-                        throw new IllegalArgumentException("The password reset URL must not be null or empty for type 'PASSWORD_RESET'");
-                    }
-                }
-                default -> throw new IllegalArgumentException("The request type '" + mailRequest.getType() + "' does not match the application's requests");
-            }
-        } catch (IllegalArgumentException e) {
-            // Handle invalid request type or missing fields
-            throw new IllegalArgumentException("The request type '" + mailRequest.getType() + "' is invalid or missing required fields", e);
-        }
-    }
 
     private ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object responseObj) {
         Map<String, Object> map = new HashMap<>();

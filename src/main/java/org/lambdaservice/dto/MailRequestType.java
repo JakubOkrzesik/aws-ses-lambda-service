@@ -2,7 +2,8 @@ package org.lambdaservice.dto;
 
 public enum MailRequestType {
     NOTIFICATION,
-    PASSWORD_RESET;
+    PASSWORD_RESET,
+    ACCOUNT_ACTIVATION;
 
     public static void validateType(String type) {
         try {
