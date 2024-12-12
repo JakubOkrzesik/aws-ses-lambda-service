@@ -3,12 +3,12 @@
     "recipients": ["testamznses@gmail.com"],
     "body": "This is a password reset",
     "type": "PASSWORD_RESET",
-    "password_reset_url": "password"
+    "url": "https://www.youtube.com/watch?v=CMa4xWdRCWM"
   },
   {
     "recipients": ["testamznses@gmail.com"],
     "body": "This is a notification",
     "type": "NOTIFICATION",
-    "password_reset_url": ""
+    "url": ""
   }
 ]

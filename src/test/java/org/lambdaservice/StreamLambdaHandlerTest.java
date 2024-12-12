@@ -62,11 +62,12 @@ public class StreamLambdaHandlerTest {
         AwsProxyResponse response = readResponse(responseStream);
         assertNotNull(response);
 
-        assertEquals(HttpStatus.valueOf(response.getStatusCode()), HttpStatus.CREATED);
-
         String responseBody = response.getBody();
         BodyTestClass body = readResponseBody(responseBody);
         assertNotNull(body);
+        System.out.println(body);
+
+        assertEquals(HttpStatus.valueOf(response.getStatusCode()), HttpStatus.CREATED);
 
         List<MailResponse> mailResponseList = body.getData();
 

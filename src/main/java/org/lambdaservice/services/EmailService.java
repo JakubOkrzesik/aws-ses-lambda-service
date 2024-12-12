@@ -2,15 +2,11 @@ package org.lambdaservice.services;
 
 
 import jakarta.mail.Address;
-import jakarta.mail.BodyPart;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.*;
 import lombok.RequiredArgsConstructor;
-import org.lambdaservice.dto.MailRequest;
-import org.lambdaservice.dto.MailRequestType;
-import org.lambdaservice.dto.MailResponse;
-import org.lambdaservice.dto.MailResponseStatusType;
+import org.lambdaservice.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,48 +58,48 @@ public class EmailService {
             }
     }
 
-    private MimeMessage generateMessage(MailRequest mailRequest) throws MessagingException, IOException {
+    private MimeMessage generateMessage(MailRequest mailRequest) {
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        mimeMessage.setFrom(source);
-        Address[] recipients = getAddresses(mailRequest);
-        mimeMessage.setRecipients(Message.RecipientType.TO, recipients);
-        MimeMultipart multipart = new MimeMultipart("related");
-        BodyPart bodyPart = new MimeBodyPart();
-        String htmlText;
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            mimeMessage.setFrom(source);
+            Address[] recipients = getAddresses(mailRequest);
+            mimeMessage.setRecipients(Message.RecipientType.TO, recipients);
+            String htmlText;
 
 
-        switch (MailRequestType.valueOf(mailRequest.getType())) {
-            case PASSWORD_RESET -> {
-                mimeMessage.setSubject("This is a password reset email");
-                mimeMessage.setText(mailRequest.getUrl());
+            switch (MailRequestType.valueOf(mailRequest.getType())) {
+                case PASSWORD_RESET -> {
+                    mimeMessage.setSubject("This is a password reset email");
 
-                htmlText = loadHtmlTemplate("src/main/resources/templates/account-activation-template.html");
-                bodyPart.setContent(htmlText, "text/html");
+                    htmlText = loadHtmlTemplate("templates/password-reset-template.html");
+                    htmlText = htmlText.replace("${url}", mailRequest.getUrl());
+                    mimeMessage.setContent(htmlText, "text/html; charset=UTF-8");
 
-                mimeMessage.setContent(multipart);
-                return mimeMessage;
+                    return mimeMessage;
+                }
+                case NOTIFICATION -> {
+                    mimeMessage.setSubject("This is a notification");
+
+                    htmlText = loadHtmlTemplate("templates/notification-template.html");
+                    mimeMessage.setContent(htmlText, "text/html; charset=UTF-8");
+
+                    return mimeMessage;
+                    // will probably put sth like order number as the subject
+                }
+                case ACCOUNT_ACTIVATION -> {
+                    mimeMessage.setSubject("This is a account activation email");
+
+                    htmlText = loadHtmlTemplate("templates/account-activation-template.html");
+                    mimeMessage.setContent(htmlText, "text/html; charset=UTF-8");
+
+                    return mimeMessage;
+                }
+                default ->
+                        throw new IllegalArgumentException("The request type does not match the application's requests");
             }
-            case NOTIFICATION -> {
-                mimeMessage.setSubject("This is a notification");
-                mimeMessage.setText(mailRequest.getBody());
-
-                htmlText = loadHtmlTemplate("src/main/resources/templates/notification-template.html");
-                bodyPart.setContent(htmlText, "text/html");
-
-                return mimeMessage;
-                // will probably put sth like order number as the subject
-            }
-            case ACCOUNT_ACTIVATION -> {
-                mimeMessage.setSubject("This is a account activation email");
-                mimeMessage.setText(mailRequest.getUrl());
-
-                htmlText = loadHtmlTemplate("src/main/resources/templates/account-activation-template.html");
-                bodyPart.setContent(htmlText, "text/html");
-
-                return mimeMessage;
-            }
-            default -> throw new IllegalArgumentException("The request type does not match the application's requests");
+        } catch (MessagingException | IOException e) {
+            throw new MailServiceException("An error occurred while processing your email request");
         }
     }
 

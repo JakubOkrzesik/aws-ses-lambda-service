@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.lambdaservice.dto.MailRequest;
 import org.lambdaservice.dto.MailRequestType;
 import org.lambdaservice.dto.MailResponse;
+import org.lambdaservice.dto.MailServiceException;
 import org.lambdaservice.services.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,7 @@ public class EmailController {
             return generateResponse("Returning emails requests status", HttpStatus.CREATED, responses);
         } catch (IllegalArgumentException e) {
             return generateResponse("Invalid request", HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return generateResponse("Error while processing the request", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
